@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "start": "bun run index.ts"
+    "start": "bun run index.ts",
+    "postinstall": "playwright install --with-deps chromium"
   },
   "dependencies": {
-    "hono": "^4.9.0"
+    "hono": "^4.9.0",
+    "playwright": "^1.56.1"
   }
 }
