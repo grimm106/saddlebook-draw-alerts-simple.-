@@ -6,3 +6,9 @@ export async function parseDrawPage(page:Page):Promise<RiderRun[]> {
     return {draw:Number(t[0]),rider:t[2]||'',horse:t[3]||'',city:t[4]||'',score:t[1]||'',completed:tr.className.includes('success')};
   }).filter(r=>Number.isInteger(r.draw)&&r.draw>0&&r.rider));
 }
+export async function nextDrawPage(page:Page):Promise<string|null> {
+  return page.locator('a').evaluateAll(as=>{
+    const next=as.find(a=>a.textContent?.toLowerCase().includes('next')&&!a.closest('.disabled'));
+    return next?(next as HTMLAnchorElement).href:null;
+  });
+}
