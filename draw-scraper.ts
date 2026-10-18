@@ -12,3 +12,5 @@ export async function nextDrawPage(page:Page):Promise<string|null> {
     return next?(next as HTMLAnchorElement).href:null;
   });
 }
+
+// Rows are parsed in their displayed draw order.
