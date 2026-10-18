@@ -9,7 +9,7 @@ app.get('/', c => c.html(`<!doctype html><html lang="en"><head><meta charset="ut
 serve({fetch:app.fetch,port:Number(process.env.PORT || 8080),hostname:'0.0.0.0'},info=>console.log('Server listening on port '+info.port));
 if(process.env.RUN_AUTH_PROBE_ON_STARTUP==='true') {
   inspectAuthenticatedDraw('https://saddlebook.com/events/15698/courses/157104/draws?by_draw=true','https://saddlebook.com/events/15698/courses/157104/scoreboard').then(result=>{
-    console.log('SADDLEBOOK_PROBE_RESULT',JSON.stringify({ok:result.ok,stage:result.stage,tableRowCount:result.tableRowCount}));
+    console.log('SADDLEBOOK_PROBE_RESULT',JSON.stringify({ok:result.ok,stage:result.stage,tableRowCount:result.tableRowCount,sampleRows:result.sampleRows?.slice(0,3).map(r=>({text:r.text?.slice(0,140),cells:r.cells?.map(c=>c.text?.slice(0,60))})),paginationLinks:result.paginationLinks?.slice(0,3)}));
   }).catch(error=>console.error('SADDLEBOOK_PROBE_ERROR',String(error).slice(0,120)));
 }
 export default app;
