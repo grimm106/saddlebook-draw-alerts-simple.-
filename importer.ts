@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import {parseDrawPage,nextDrawPage} from './draw-scraper';
 import {saveCompetition} from './store';
+import { inspectAuthenticatedDraw } from './auth';
 export const importStatus:{state:string,message:string,id?:string,count?:number,pages?:number}={state:'idle',message:'Not started'};
 let running=false;
 export async function importDraw(drawUrl:string,leaderboardUrl:string){
@@ -23,7 +24,7 @@ export async function importDraw(drawUrl:string,leaderboardUrl:string){
  }
  if(url&&pages===25)throw Error('Draw exceeds page limit');
  const runs=[...all.values()].sort((a,b)=>a.draw-b.draw);
- if(!runs.length)throw Error('No riders found on draw');
+ if(!runs.length){const diagnostic=await inspectAuthenticatedDraw(d.href,l.href);throw Error('No riders found on draw. Authenticated diagnostic: '+diagnostic.stage+' ('+(diagnostic.parsedEntries||0)+' parsed entries)');}
  await saveCompetition(id,{drawUrl:d.href,leaderboardUrl:l.href,updatedAt:new Date().toISOString(),pages,runs});
  Object.assign(importStatus,{state:'success',message:'Saved '+runs.length+' runs',count:runs.length,pages});
  }catch(e){Object.assign(importStatus,{state:'error',message:String(e).slice(0,250)})}
