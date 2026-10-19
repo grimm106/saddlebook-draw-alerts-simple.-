@@ -1,6 +1,10 @@
 export type RiderRun={draw:number,rider:string,horse:string,city:string,score:string,completed:boolean};
 import type {Page} from 'playwright';
+import { inspectDrawPage, extractDrawEntries } from './draw-parser';
 export async function parseDrawPage(page:Page):Promise<RiderRun[]> {
+  const inspected=await inspectDrawPage(page);
+  const extracted=extractDrawEntries(inspected);
+  if(extracted.length)return extracted.map(r=>({draw:r.drawNumber,rider:r.rider,horse:r.horse||'',city:'',score:'',completed:r.completed}));
   return page.evaluate(() => Array.from(document.querySelectorAll('table tr')).map(tr => {
     const t=Array.from(tr.querySelectorAll('td')).map(td => (td as HTMLElement).innerText.trim());
     return {draw:Number(t[0]),rider:t[2]||'',horse:(t[3]||'').replace(/\n[rR]$/,'').trim(),city:t[4]||'',score:t[1]||'',completed: /(?:^|\s)(?:table-success|bg-success|completed|finished)(?:\s|$)/i.test(tr.className) || /^(?:\d{1,3}:)?\d{1,3}\.\d{1,3}$/.test((t[1]||'').trim()) || /^(?:NT|N\/T|NO TIME|DQ|DISQUALIFIED)$/i.test((t[1]||'').trim())};
