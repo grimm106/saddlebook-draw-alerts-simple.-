@@ -30,7 +30,7 @@ export function greenCompletion(row: InspectedRow): boolean {
   // Only treat explicit green class names as evidence. Color values require
   // live validation to avoid mistaking alternating or decorative row colors.
   const classes = [row.className, ...row.cellStyles.map(c => c.className)].join(' ');
-  return /(?:^|\\s)(?:bg-success|table-success|completed|is-complete|finished)(?:\\s|$)/i.test(classes);
+  return /(?:^|\s)(?:bg-success|table-success|completed|is-complete|finished)(?:\s|$)/i.test(classes);
 }
 export function extractDrawEntries(rows: InspectedRow[]): DrawEntry[] {
   return rows.flatMap((row, i) => {
@@ -43,7 +43,7 @@ export function extractDrawEntries(rows: InspectedRow[]): DrawEntry[] {
       rider: row.cells[2] || 'Unknown',
       horse: row.cells[3]?.replace(/\n[rR]$/, '').trim() || undefined,
       completed: greenCompletion(row),
-      scratched: /\\bscratch(?:ed)?\\b/i.test(row.text)
+      scratched: /\b(?:scratch(?:ed)?|scr)\b/i.test(row.text)
     }];
   });
 }
