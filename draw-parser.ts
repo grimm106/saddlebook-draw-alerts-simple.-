@@ -38,10 +38,10 @@ export function extractDrawEntries(rows: InspectedRow[]): DrawEntry[] {
     const drawNumber = Number(first.replace(/[^0-9]/g, ''));
     if (!Number.isSafeInteger(drawNumber) || drawNumber <= 0 || row.cells.length < 2) return [];
     return [{
-      id: String(drawNumber) + ':' + i,
+      id: String(drawNumber),
       drawNumber,
-      rider: row.cells[1] || 'Unknown',
-      horse: row.cells[2] || undefined,
+      rider: row.cells[2] || 'Unknown',
+      horse: row.cells[3]?.replace(/\n[rR]$/, '').trim() || undefined,
       completed: greenCompletion(row),
       scratched: /\\bscratch(?:ed)?\\b/i.test(row.text)
     }];
