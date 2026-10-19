@@ -30,19 +30,19 @@ export function greenCompletion(row: InspectedRow): boolean {
   // Only treat explicit green class names as evidence. Color values require
   // live validation to avoid mistaking alternating or decorative row colors.
   const classes = [row.className, ...row.cellStyles.map(c => c.className)].join(' ');
-  return /(?:^|\s)(?:bg-success|table-success|completed|is-complete|finished)(?:\s|$)/i.test(classes);
+  return /(?:^|\s)(?:bg-sbhl|bg-success|table-success|completed|is-complete|finished)(?:\s|$)/i.test(classes) || /^(?:\d{1,3}:)?\d{1,3}\.\d{1,3}$/.test((row.cells[1]||'').trim());
 }
 export function extractDrawEntries(rows: InspectedRow[]): DrawEntry[] {
   return rows.flatMap((row, i) => {
     const first = row.cells[0] || '';
-    const drawNumber = Number(first.replace(/[^0-9]/g, ''));
+    const drawNumber = /^\d+$/.test(first.trim()) ? Number(first.trim()) : NaN;
     if (!Number.isSafeInteger(drawNumber) || drawNumber <= 0 || row.cells.length < 2) return [];
     return [{
       id: String(drawNumber),
       drawNumber,
       rider: row.cells[2] || 'Unknown',
       horse: row.cells[3]?.replace(/\n[rR]$/, '').trim() || undefined,
-      completed: greenCompletion(row) || ['NT', 'N/T', 'NO TIME', 'DQ'].includes((row.cells[1] || '').trim().toUpperCase()),
+      completed: greenCompletion(row) || /^(?:NT|N\/T|NO TIME|DQ|DISQUALIFIED|NO SCORE)$/i.test((row.cells[1] || '').trim()),
       scratched: /\b(?:scratch(?:ed)?|scr)\b/i.test(row.text)
     }];
   });
