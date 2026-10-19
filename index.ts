@@ -1,3 +1,4 @@
+import { beginSimulation, advanceSimulation } from './simulation';
 import { importDraw, importStatus } from './importer';
 import { loadSaved, getCompetition, listCompetitions } from './store';
 import { progress } from './draw-progress';
@@ -5,6 +6,10 @@ import { inspectAuthenticatedDraw } from './auth';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 const app = new Hono();
+const simulations=new Map<string,ReturnType<typeof beginSimulation>>();
+app.post('/api/simulation/start',async c=>{try{const b=await c.req.json();const comp=getCompetition(String(b.competitionId));if(!comp)return c.json({error:'Import a competition first'},404);const id=String(b.selectedId);const state=beginSimulation(String(b.competitionId),comp.runs.map(r=>({id:String(r.draw),drawNumber:r.draw,rider:r.rider,horse:r.horse,completed:false})),id);simulations.set(state.competitionId,state);return c.json({progress:progress(state.entries,id),events:[]})}catch(e){return c.json({error:String(e)},400)}});
+app.post('/api/simulation/advance',async c=>{try{const b=await c.req.json();const state=simulations.get(String(b.competitionId));if(!state)return c.json({error:'Start simulation first'},404);return c.json(advanceSimulation(state,Number(b.steps||1)))}catch(e){return c.json({error:String(e)},400)}});
+
 app.post('/api/authenticated-check',async c=>{if(!process.env.DIAGNOSTIC_ACCESS_TOKEN || c.req.header('x-diagnostic-token')!==process.env.DIAGNOSTIC_ACCESS_TOKEN)return c.json({ok:false,message:'Diagnostics disabled or unauthorized.'},403);const body=await c.req.json().catch(()=>({}));return c.json(await inspectAuthenticatedDraw(body.draw,body.leaderboard))});
 app.post('/api/import',async c=>{const body=await c.req.json().catch(()=>({}));if(typeof body.draw!=='string'||typeof body.leaderboard!=='string')return c.json({error:'Both URLs required'},400);void importDraw(body.draw,body.leaderboard).catch(e=>Object.assign(importStatus,{state:'error',message:String(e).slice(0,200)}));return c.json({state:'starting'},202)});
 app.get('/api/import-status',c=>c.json(importStatus));
