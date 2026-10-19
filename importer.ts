@@ -2,6 +2,7 @@ import {chromium} from 'playwright';
 import {parseDrawPage,nextDrawPage} from './draw-scraper';
 import {saveCompetition} from './store';
 import { inspectAuthenticatedDraw } from './auth';
+import { prepareSaddleBookPage } from './session';
 export const importStatus:{state:string,message:string,id?:string,count?:number,pages?:number}={state:'idle',message:'Not started'};
 let running=false;
 export async function importDraw(drawUrl:string,leaderboardUrl:string){
@@ -14,6 +15,7 @@ export async function importDraw(drawUrl:string,leaderboardUrl:string){
  try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const page=await browser.newPage(),seen=new Set<string>(),all=new Map<number,Awaited<ReturnType<typeof parseDrawPage>>[number]>();
+ await prepareSaddleBookPage(page);
  let url:string|null=d.href,pages=0;
  while(url&&pages<25){
   if(seen.has(url))break;
