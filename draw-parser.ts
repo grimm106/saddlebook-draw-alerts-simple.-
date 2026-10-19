@@ -42,7 +42,7 @@ export function extractDrawEntries(rows: InspectedRow[]): DrawEntry[] {
       drawNumber,
       rider: row.cells[2] || 'Unknown',
       horse: row.cells[3]?.replace(/\n[rR]$/, '').trim() || undefined,
-      completed: greenCompletion(row),
+      completed: greenCompletion(row) || /^(?:\\d{1,3}\\.\\d{1,3}|NT|N\\/T|NO TIME|DQ)$/i.test((row.cells[1] || '').trim()),
       scratched: /\b(?:scratch(?:ed)?|scr)\b/i.test(row.text)
     }];
   });
