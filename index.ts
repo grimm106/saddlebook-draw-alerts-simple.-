@@ -36,4 +36,10 @@ if(process.env.RUN_AUTH_PROBE_ON_STARTUP==='true') {
     console.log('SADDLEBOOK_PROBE_RESULT',JSON.stringify({ok:result.ok,stage:result.stage,tableRowCount:result.tableRowCount,inspectedRows:result.inspectedRows,parsedEntries:result.parsedEntries,explicitlyCompleted:result.explicitlyCompleted,styleClasses:result.styleClasses,sampleStyles:result.sampleRows?.slice(1,3).map(r=>({className:r.className,background:r.background,cells:r.cells?.map(c=>({className:c.className,background:c.background}))})),paginationLinks:result.paginationLinks?.slice(0,3)}));
   }).catch(error=>console.error('SADDLEBOOK_PROBE_ERROR',String(error).slice(0,120)));
 }
+if(process.env.RUN_IMPORT_PROBE_ON_STARTUP==='true') {
+  importDraw('https://saddlebook.com/events/15698/courses/157104/draws?by_draw=true','https://saddlebook.com/events/15698/courses/157104/scoreboard')
+    .then(result=>console.log('SADDLEBOOK_IMPORT_PROBE_RESULT',JSON.stringify({state:result.state,count:result.count,pages:result.pages,message:result.message})))
+    .catch(error=>console.error('SADDLEBOOK_IMPORT_PROBE_ERROR',String(error).slice(0,180)));
+}
+
 export default app;
